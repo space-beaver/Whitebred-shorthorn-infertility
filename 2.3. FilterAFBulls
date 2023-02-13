@@ -1,0 +1,37 @@
+#!/bin/sh
+# Grid Engine options
+#$ -N filtBulls
+#$ -cwd
+#$ -l h_rt=48:00:00
+#$ -l h_vmem=12G
+#$ -pe sharedmem 4
+#$ -o o_filesfb
+#$ -e e_filesfb
+#$ -P roslin_prendergast_cores
+#$ -t 1-29
+
+#script creates tsv list of positions from a vcf and removes them from a vcf 
+
+#initialise modules env and conda 
+. /etc/profile.d/modules.sh
+source /exports/applications/apps/community/roslin/conda/4.9.1/etc/profile.d/conda.sh
+
+#Modules required
+module load roslin/bcftools/1.9
+module load igmm/apps/tabix/0.2.6
+module load roslin/conda/4.9.1
+conda activate bgzip
+
+#specify directories 
+IN_DIR=/exports/cmvm/eddie/eb/groups/prendergast_roslin/mmarr/WHD/vep
+OUT_DIR=/exports/cmvm/eddie/eb/groups/prendergast_roslin/mmarr/WHD/vep
+SCRATCH=/exports/eddie/scratch/mmarr3/variants
+
+#Create list of positions from filtered WHD vcfs 
+bcftools query -f'%CHROM\t%POS\n' $IN_DIR/chr${SGE_TASK_ID}_gq_miss_posFilt_vep102_tags_sv.vcf.gz | bgzip -c > ${OUT_DIR}/chr${SGE_TASK_ID}_pos.tsv.gz && tabix -s1 -b2 -e2 chr${SGE_TASK_ID}_pos.tsv.gz
+
+#Filter 1000bulls data to extract WHD positions 
+bcftools view -T $IN_DIR/chr${SGE_TASK_ID}_pos.tsv.gz ${SCRATCH}/Chr${SGE_TASK_ID}-Run8-TAUIND-public.vcf.gz -Oz -o ${OUT_DIR}/chr${SGE_TASK_ID}_posBulls.vcf.gz 
+
+#extract AF column from bulls data 
+bcftools query -f '%CHROM\t%POS\t%INFO/AF\n' ${IN_DIR}/chr${SGE_TASK_ID}_posBulls.vcf.gz  > ${OUT_DIR}/chr${SGE_TASK_ID}_bulls_AF.table
