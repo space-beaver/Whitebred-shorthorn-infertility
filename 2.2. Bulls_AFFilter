@@ -1,0 +1,24 @@
+#!/bin/sh
+# Grid Engine options
+#$ -N AF_filter
+#$ -cwd
+#$ -l h_rt=100:00:00
+#$ -l h_vmem=32G
+#$ -pe sharedmem 12
+#$ -o o_affiles
+#$ -e e_affiles
+#$ -t 1-29
+#$ -P roslin_prendergast_cores
+
+# Initialise the Modules environment
+. /etc/profile.d/modules.sh
+
+#load bcftools 
+module load roslin/bcftools/1.9
+
+#specify dirs 
+TARGET_DIR=/path/to/input/files
+OUTPUT_DIR=/path/to/output/dir
+
+#filter 
+bcftools view -i 'INFO/AF > 0.01' $TARGET_DIR/Chr${SGE_TASK_ID}-Run8-TAUIND-public.vcf.gz -O z -o OUTPUT_DIR/chr${SGE_TASK_ID}_1000bulls_filt1.vcf.gz
