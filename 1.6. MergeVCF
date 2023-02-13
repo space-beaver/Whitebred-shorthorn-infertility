@@ -1,0 +1,48 @@
+#!/bin/sh
+# SGE options (lines prefixed with #$)
+#$ -N runVCFMerge.sh
+#$ -cwd
+#$ -l h_rt=24:00:00
+#$ -l h_vmem=16G
+#$ -t 1:14 
+#$ -P roslin_prendergast_cores
+#$ -e e_mervcf
+#$ -o o_mervcf
+
+# Initialise the environment modules
+. /etc/profile.d/modules.sh
+source /exports/applications/apps/community/roslin/conda/4.9.1/etc/profile.d/conda.sh
+
+#load modules (tabix in conda env)
+module load roslin/bcftools/1.9
+module load roslin/conda/4.9.1
+conda activate tabix 
+
+#specify dirs 
+TARGET_DIR=/path/to/input/files
+OUTPUT_DIR=/path/to/output/dir
+
+#get a list of .vcfs
+sampleid=$(ls -1 ${TARGET_DIR}/*.vcf.gz)
+
+# Get file to be processed by *this* task
+# Extract the Nth file in the list of files, $sampleid, where N == $SGE_TASK_ID
+
+this_file=$(echo "${sampleid}" | sed -n ${SGE_TASK_ID}p)
+echo Processing file: ${this_file} on $HOSTNAME
+
+#edit as appropriate
+base=$(echo "$this_file" | cut -f 11 -d '/' | cut -f 1 -d '.')
+
+#merge vcfs 
+bcftools merge ${this_file}_${SGE_TASK_ID}.vcf.gz .vcf.gz .vcf.gz -O z > _noFilt.vcf.gz
+
+do
+  bcftools view -l 9 ${this_file} --regions ${i} -o $OUTPUT_DIR/${base}_${i}.vcf.gz
+  
+done
+
+#index vcfs 
+tabix -p vcf .vcf.gz
+tabix -p vcf .vcf.gz
+
