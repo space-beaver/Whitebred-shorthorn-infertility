@@ -32,17 +32,14 @@ this_file=$(echo "${sampleid}" | sed -n ${SGE_TASK_ID}p)
 echo Processing file: ${this_file} on $HOSTNAME
 
 #edit as appropriate
-base=$(echo "$this_file" | cut -f 11 -d '/' | cut -f 1 -d '.')
+base=$(echo "$this_file" | cut -f 15 -d '/' | cut -f 1 -d '.')
 
 #merge vcfs 
-bcftools merge ${this_file}_${SGE_TASK_ID}.vcf.gz .vcf.gz .vcf.gz -O z > _noFilt.vcf.gz
+bcftools merge ${this_file}_.vcf.gz .vcf.gz .vcf.gz -O z > ${base}_merged_noFilt.vcf.gz
 
-do
-  bcftools view -l 9 ${this_file} --regions ${i} -o $OUTPUT_DIR/${base}_${i}.vcf.gz
-  
-done
+
 
 #index vcfs 
-tabix -p vcf .vcf.gz
-tabix -p vcf .vcf.gz
+tabix -p vcf ${base}merged_noFilt.vcf.gz
+
 
