@@ -36,7 +36,7 @@ vcftools --gzvcf chr${SGE_TASK_ID}_posFilt_vep102_tags_sv.vcf.gz --minGQ 20 --re
 #filter out missing GT's (optional)
 vcftools --gzvcf chr${SGE_TASK_ID}_gq_posFilt_vep102_tags_sv.vcf.gz --max-missing 0.25  --recode --recode-INFO-all --stdout | gzip -c > chr${SGE_TASK_ID}_gq_miss_posFilt_vep102_tags_sv.vcf.gz;
 
-#filter out multiallelic sites (opTional)
+#filter out multiallelic sites (optional)
 bcftools view --max-alleles 2 chr${SGE_TASK_ID}_gq_miss_posFilt_vep102_tags_sv.vcf.gz -Oz -o chr${SGE_TASK_ID}_gq_miss_posFilt_vep102_tags_sv_bi.vcf.gz;
 
 #extract required info to tab-delimted table
