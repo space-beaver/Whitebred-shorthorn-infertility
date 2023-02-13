@@ -1,0 +1,39 @@
+#!/bin/sh
+# Grid Engine options
+#$ -N bcf_stats
+#$ -cwd
+#$ -l h_rt=10:00:00
+#$ -l h_vmem=16G
+#$ -pe sharedmem 12
+#$ -o o_extr
+#$ -e e_extr
+#$ -t 1-29
+#$ -P roslin_prendergast_cores
+
+# Initialise the Modules environment
+. /etc/profile.d/modules.sh
+
+#load modules
+module load roslin/bcftools/1.9
+
+#specify dirs 
+TARGET_DIR=/path/to/input/files
+OUTPUT_DIR=/path/to/outpute/directory
+
+#get a list of g.vcfs
+sampleid=$(ls -1 ${TARGET_DIR}/*.vcf.gz)
+
+# Get file to be processed by *this* task
+# Extract the Nth file in the list of files, $sampleid, where N == $SGE_TASK_ID
+
+this_file=$(echo "${sampleid}" | sed -n ${SGE_TASK_ID}p)
+echo Processing file: ${this_file} on $HOSTNAME
+
+base=$(echo "$this_file" | cut -f 11 -d '/' | cut -f 1 -d '.')
+
+for i in 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 X
+
+do
+  bcftools view -l 9 ${this_file} --regions ${i} -o $OUTPUT_DIR/${base}_${i}.vcf.gz
+  
+done
