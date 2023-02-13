@@ -1,10 +1,10 @@
 #!/bin/sh
 # Grid Engine options
-#$ -N bcf_stats
+#$ -N extract
 #$ -cwd
 #$ -l h_rt=10:00:00
-#$ -l h_vmem=16G
-#$ -pe sharedmem 12
+#$ -l h_vmem=8G
+#$ -pe sharedmem 2
 #$ -o o_extr
 #$ -e e_extr
 #$ -t 1-29
@@ -17,8 +17,8 @@
 module load roslin/bcftools/1.9
 
 #specify dirs 
-#TARGET_DIR=/path/to/input/files
-#OUTPUT_DIR=/path/to/outpute/directory
+TARGET_DIR=/exports/cmvm/eddie/eb/groups/prendergast_roslin/mmarr/WHD/deepvar_demo/WHD05-BG-Ca/deepvar/WHD05-BG-Ca/test
+OUTPUT_DIR=/exports/cmvm/eddie/eb/groups/prendergast_roslin/mmarr/WHD/deepvar_demo/WHD05-BG-Ca/deepvar/WHD05-BG-Ca/test
 
 #get a list of g.vcfs
 sampleid=$(ls -1 ${TARGET_DIR}/*.vcf.gz)
@@ -33,5 +33,5 @@ base=$(echo "$this_file" | cut -f 15 -d '/' | cut -f 1 -d '-')
 
 for i in 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 
 do
-  bcftools view -l 9 ${this_file} --regions  -Oz -o ${base}_chr${i}.vcf.gz
+  bcftools view -l 9 ${this_file} --regions ${i} -Oz -o ${base}_chr${i}.vcf.gz
 done
