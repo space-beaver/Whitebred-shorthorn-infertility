@@ -19,7 +19,7 @@ module load singularity
 #only needs to be run the first time
 #singularity pull glnexus.sif docker://ghcr.io/dnanexus-rnd/glnexus:v1.4.1
 
-#run GLNex merge 
+#run GLNex merge - creates bcf per chrom inc all samples. 
 
 for {i} in 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29
   do 
@@ -29,6 +29,6 @@ WHD01-LS-Co_{i}.g.vcf.gz WHD03-BS-Co_{i}.g.vcf.gz WHD04-Vo-Ca_{i}.g.vcf.gz WHD05
 WHD06-SP-Ca_{i}.g.vcf.gz WHD07-Pw-Ca_{i}.g.vcf.gz WHD08-SC-Co_{i}.g.vcf.gz WHD10-WM-Ca_{i}.g.vcf.gz \
 WHD11-HC-Ca_{i}.g.vcf.gz > cattle_all_merged_{i}.bcf
   done
-
+  
 #index 
 bcftools index -f cattle_all_merged_{i}.bcf
