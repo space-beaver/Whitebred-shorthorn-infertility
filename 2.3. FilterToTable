@@ -1,0 +1,40 @@
+#!/bin/sh
+# Grid Engine options
+#$ -N filtab
+#$ -cwd
+#$ -l h_rt=48:00:00
+#$ -l h_vmem=12G
+#$ -pe sharedmem 4
+#$ -o o_filtab
+#$ -e e_filtab
+#$ -P roslin_prendergast_cores
+#$ -t 1-29
+
+# Initialise the Modules environment
+. /etc/profile.d/modules.sh
+
+#load modules
+module load roslin/bcftools/1.10
+module load igmm/apps/vcftools/0.1.13
+
+#define directories
+#IN_DIR=/exports/cmvm/eddie/eb/groups/prendergast_roslin/mmarr/WHD/vep
+#OUT_DIR=/exports/cmvm/eddie/eb/groups/prendergast_roslin/mmarr/WHD/vep
+
+#add allele count (AC), allele frequency (AF), allele number (AN)
+bcftools +fill-tags chr${SGE_TASK_ID}_noFilt_vep102.vcf.gz -Oz -o chr${SGE_TASK_ID}_noFilt_vep102_tags.vcf.gz -- -t AN,AC,AF;
+
+#filter by 1000bulls AF 
+bcftools view -T ^${IN_DIR2}/Chr${SGE_TASK_ID}_pos.tsv.gz chr${SGE_TASK_ID}_noFilt_vep102_tags.vcf.gz -Oz -o chr${SGE_TASK_ID}_posFilt_vep102_tags.vcf.gz;
+
+#add vep consequence to INFO field 
+bcftools +split-vep chr${SGE_TASK_ID}_posFilt_vep102_tags.vcf.gz -c Consequence -Oz -o chr${SGE_TASK_ID}_posFilt_vep102_tags_sv.vcf.gz;
+
+#filter on genotype quality 
+vcftools --gzvcf chr${SGE_TASK_ID}_posFilt_vep102_tags_sv.vcf.gz --minGQ 20 --recode --recode-INFO-all --stdout | gzip -c > chr${SGE_TASK_ID}_gq_posFilt_vep102_tags_sv.vcf.gz;
+
+#filter out missing GT's 
+vcftools --gzvcf chr${SGE_TASK_ID}_gq_posFilt_vep102_tags_sv.vcf.gz --max-missing 0.25  --recode --recode-INFO-all --stdout | gzip -c > chr${SGE_TASK_ID}_gq_miss_posFilt_vep102_tags_sv.vcf.gz;
+
+#extract required info to tab-delimted table
+bcftools query -f '%CHROM\t%POS\t%REF\t%ALT\t%INFO/Consequence\t[ %GT]\n' chr${SGE_TASK_ID}_gq_miss_posFilt_vep102_tags_sv.vcf.gz > chr${SGE_TASK_ID}.table
