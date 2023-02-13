@@ -34,10 +34,12 @@ echo Processing file: ${this_file} on $HOSTNAME
 #edit as appropriate
 base=$(echo "$this_file" | cut -f 15 -d '/' | cut -f 1 -d '.')
 
-#merge vcfs 
-bcftools merge ${this_file}_.vcf.gz .vcf.gz .vcf.gz -O z > ${base}_merged_noFilt.vcf.gz
-
-
+#merge vcfs (can provide list in file instead of listing all chroms)
+bcftools merge ${base}_chr1.vcf.gz ${base}_chr2.vcf.gz ${base}_chr3.vcf.gz ${base}_chr4.vcf.gz ${base}_chr5.vcf.gz ${base}_chr6.vcf.gz \
+${base}_chr7.vcf.gz ${base}_chr8.vcf.gz ${base}_chr9.vcf.gz ${base}_chr10.vcf.gz ${base}_chr11.vcf.gz ${base}_chr12.vcf.gz ${base}_chr13.vcf.gz \
+${base}_chr14.vcf.gz ${base}_chr15.vcf.gz ${base}_chr16.vcf.gz ${base}_chr17.vcf.gz ${base}_chr18.vcf.gz ${base}_chr19.vcf.gz ${base}_chr20.vcf.gz \
+${base}_chr21.vcf.gz ${base}_chr22.vcf.gz ${base}_chr23.vcf.gz ${base}_chr24.vcf.gz ${base}_chr25.vcf.gz ${base}_chr26.vcf.gz ${base}_chr27.vcf.gz \
+${base}_chr28.vcf.gz ${base}_chr29.vcf.gz  -O z > ${base}_merged_noFilt.vcf.gz
 
 #index vcfs 
 tabix -p vcf ${base}merged_noFilt.vcf.gz
