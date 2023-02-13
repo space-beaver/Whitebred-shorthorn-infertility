@@ -33,8 +33,11 @@ bcftools +split-vep chr${SGE_TASK_ID}_posFilt_vep102_tags.vcf.gz -c Consequence 
 #filter on genotype quality 
 vcftools --gzvcf chr${SGE_TASK_ID}_posFilt_vep102_tags_sv.vcf.gz --minGQ 20 --recode --recode-INFO-all --stdout | gzip -c > chr${SGE_TASK_ID}_gq_posFilt_vep102_tags_sv.vcf.gz;
 
-#filter out missing GT's 
+#filter out missing GT's (optional)
 vcftools --gzvcf chr${SGE_TASK_ID}_gq_posFilt_vep102_tags_sv.vcf.gz --max-missing 0.25  --recode --recode-INFO-all --stdout | gzip -c > chr${SGE_TASK_ID}_gq_miss_posFilt_vep102_tags_sv.vcf.gz;
 
+#filter out multiallelic sites (opTional)
+bcftools view --max-alleles 2 chr${SGE_TASK_ID}_gq_miss_posFilt_vep102_tags_sv.vcf.gz -Oz -o chr${SGE_TASK_ID}_gq_miss_posFilt_vep102_tags_sv_bi.vcf.gz;
+
 #extract required info to tab-delimted table
-bcftools query -f '%CHROM\t%POS\t%REF\t%ALT\t%INFO/Consequence\t[ %GT]\n' chr${SGE_TASK_ID}_gq_miss_posFilt_vep102_tags_sv.vcf.gz > chr${SGE_TASK_ID}.table
+bcftools query -f '%CHROM\t%POS\t%REF\t%ALT\t%INFO/Consequence\t[ %GT]\n' chr${SGE_TASK_ID}_gq_miss_posFilt_vep102_tags_sv_bi.vcf.gz > chr${SGE_TASK_ID}_GQ_bi.table
